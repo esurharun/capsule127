@@ -7,6 +7,7 @@ package asg.cliche;
 
 import asg.cliche.util.Strings;
 import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
 import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 import org.fusesource.jansi.Ansi;
@@ -42,6 +43,9 @@ public class ConsoleIO implements Input, Output, ShellManageable {
             AnsiConsole.systemInstall();
 
             reader = new ConsoleReader();
+
+            reader.setHandleUserInterrupt(true);
+
             out = new PrintWriter(reader.getOutput());
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,8 +94,16 @@ public class ConsoleIO implements Input, Output, ShellManageable {
 
     private String readUsersCommand(String prompt) throws IOException {
 
+        String command = "";
+        try {
 
-        String command = reader.readLine(prompt);
+            command = reader.readLine(prompt);
+
+        } catch (UserInterruptException e) {
+
+        }
+
+
         if (log != null) {
             log.println(command);
         }

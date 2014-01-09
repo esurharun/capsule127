@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * Help command handler (usually prefixed by '?').
+ *
  * @author ASG
  */
 public class HelpCommandHandler implements ShellDependent {
@@ -26,9 +27,9 @@ public class HelpCommandHandler implements ShellDependent {
     public void cliSetShell(Shell theShell) {
         this.owner = theShell;
     }
-    
-    @Command(description="List all commands",
-            header=COMMAND_LIST_HEADER)
+
+    @Command(description = "List all commands",
+            header = COMMAND_LIST_HEADER)
     public List<String> listAll() {
         List<ShellCommand> commands = owner.getCommandTable().getCommandTable();
         List<String> result = new ArrayList<String>(commands.size());
@@ -38,8 +39,8 @@ public class HelpCommandHandler implements ShellDependent {
         return result;
     }
 
-    @Command(description="List all commands with no prefix",
-            header=COMMAND_LIST_HEADER)
+    @Command(description = "List all commands with no prefix",
+            header = COMMAND_LIST_HEADER)
     public List<String> list() {
         List<ShellCommand> commands = owner.getCommandTable().getCommandTable();
         List<String> result = new ArrayList<String>(commands.size());
@@ -50,20 +51,18 @@ public class HelpCommandHandler implements ShellDependent {
         }
         return result;
     }
-    
-
 
 
     private static String htmlEncode(String s) {
         return s; // for now it's app developer's responsibility to ensure html-compatibility of the strings.
-                  // Quick and dirty. But there's no htmlEncode in the JDK,
-                  // and Jakarta Commons is no good in case of Cliche: there be no dependendencies!
+        // Quick and dirty. But there's no htmlEncode in the JDK,
+        // and Jakarta Commons is no good in case of Cliche: there be no dependendencies!
     }
-            
-    @Command(description="List all available commands starting with given string",
-            header=COMMAND_LIST_HEADER)
+
+    @Command(description = "List all available commands starting with given string",
+            header = COMMAND_LIST_HEADER)
     public List<String> list(
-            @Param(name="startsWith", description="Pattern to show commands starting with") String startsWith) {
+            @Param(name = "startsWith", description = "Pattern to show commands starting with") String startsWith) {
 
         List<ShellCommand> commands = owner.getCommandTable().getCommandTable();
         List<String> result = new ArrayList<String>(commands.size());
@@ -75,19 +74,18 @@ public class HelpCommandHandler implements ShellDependent {
         return result;
     }
 
-    @Command(description="Show info on using the UI")
+    @Command(description = "Show info on using the UI")
     public Object help() {
         return
-                "This is capsule127 (" + Shell.PROJECT_HOMEPAGE_URL + ").\n" +
-                "To list all available commands enter "+ Util.Colorize(Ansi.Color.CYAN,"list")+" or "+
+                "To list all available commands enter " + Util.Colorize(Ansi.Color.CYAN, "list") + " or " +
                         Util.Colorize(Ansi.Color.CYAN, "list-all") + ", " +
-                "the latter will also show you system commands. To get detailed info " +
-                "on a command enter " + Util.Colorize(Ansi.Color.CYAN, "list-all") + " command-name";
+                        "the latter will also show you system commands. To get detailed info " +
+                        "on a command enter " + Util.Colorize(Ansi.Color.CYAN, "list-all") + " command-name";
     }
 
-    @Command(description="Show detailed info on all commands with given name")
+    @Command(description = "Show detailed info on all commands with given name")
     public Object help(
-            @Param(name="command-name", description="Command name you want help on") String commandName) {
+            @Param(name = "command-name", description = "Command name you want help on") String commandName) {
         List<ShellCommand> commands = owner.getCommandTable().commandsByName(commandName);
         StringBuilder result = new StringBuilder();
         for (ShellCommand command : commands) {
@@ -126,28 +124,26 @@ public class HelpCommandHandler implements ShellDependent {
         }
 
         result.append(")");
-        
+
         return result.toString();
     }
-    
+
     private static String formatCommandLong(ShellCommand command) {
         StringBuilder sb = new StringBuilder(String.format(
-                "Command: %s\n" +
-                "Abbrev:  %s\n" +
-                "Params:  %s\n" +
-                "Description: %s\n",
+                "%s | %s  - %s  %s\n\n"
+                ,
                 command.getPrefix() + command.getName(),
                 command.getAbbreviation() != null ? command.getPrefix() + command.getAbbreviation() : "(none)",
                 formatCommandParamsShort(command),
                 command.getDescription()));
         if (command.getArity() > 0) {
-            sb.append(String.format("Number of parameters: %d\n", command.getArity()));
+            //sb.append(String.format("Number of parameters: %d\n", command.getArity()));
             Class[] paramTypes = command.getMethod().getParameterTypes();
             ShellCommandParamSpec[] paramSpecs = command.getParamSpecs();
             if (paramSpecs != null) {
                 for (int i = 0; i < paramTypes.length; i++) {
                     if (paramSpecs[i] != null) {
-                        sb.append(String.format("%s\t%s\t%s\n", paramSpecs[i].getName(), paramTypes[i].getSimpleName(),
+                        sb.append(String.format("\t%s : %s\t%s", paramSpecs[i].getName(), paramTypes[i].getSimpleName(),
                                 paramSpecs[i].getDescription()));
                     }
                 }
@@ -156,7 +152,7 @@ public class HelpCommandHandler implements ShellDependent {
                 sb.append("This command is varargs on its last parameter.\n");
             }
         } else {
-            sb.append("No parameters.\n");
+            //sb.append("No parameters.\n");
         }
         return sb.toString();
     }

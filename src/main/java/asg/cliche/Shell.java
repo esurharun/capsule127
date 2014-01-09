@@ -56,13 +56,13 @@ public class Shell {
             allAuxHandlers.putAll(addAuxHandlers);
             return new Settings(input, output, allAuxHandlers, displayTime);
         }
-        
+
     }
 
     public Settings getSettings() {
         return new Settings(input, output, auxHandlers, displayTime);
     }
-    
+
     public void setSettings(Settings s) {
         input = s.input;
         output = s.output;
@@ -77,11 +77,11 @@ public class Shell {
     /**
      * Shell's constructor
      * You probably don't need this one, see methods of the ShellFactory.
-     * @see asg.cliche.ShellFactory
      *
-     * @param s Settings object for the shell instance
+     * @param s            Settings object for the shell instance
      * @param commandTable CommandTable to store commands
-     * @param path Shell's location: list of path elements.
+     * @param path         Shell's location: list of path elements.
+     * @see asg.cliche.ShellFactory
      */
     public Shell(Settings s, CommandTable commandTable, List<String> path) {
         this.commandTable = commandTable;
@@ -102,6 +102,7 @@ public class Shell {
 
     /**
      * Call this method to get OutputConversionEngine used by the Shell.
+     *
      * @return a conversion engine.
      */
     public OutputConversionEngine getOutputConverter() {
@@ -112,6 +113,7 @@ public class Shell {
 
     /**
      * Call this method to get InputConversionEngine used by the Shell.
+     *
      * @return a conversion engine.
      */
     public InputConversionEngine getInputConverter() {
@@ -126,15 +128,14 @@ public class Shell {
      * Method for registering command hanlers (or providers?)
      * You call it, and from then the Shell has all commands declare in
      * the handler object.
-     * 
+     * <p/>
      * This method recognizes if it is passed ShellDependent or ShellManageable
      * and calls corresponding methods, as described in those interfaces.
      *
+     * @param handler Object which should be registered as handler.
+     * @param prefix  Prefix that should be prepended to all handler's command names.
      * @see asg.cliche.ShellDependent
      * @see asg.cliche.ShellManageable
-     * 
-     * @param handler Object which should be registered as handler.
-     * @param prefix Prefix that should be prepended to all handler's command names.
      */
     public void addMainHandler(Object handler, String prefix) {
         if (handler == null) {
@@ -147,7 +148,7 @@ public class Shell {
         outputConverter.addDeclaredConverters(handler);
 
         if (handler instanceof ShellDependent) {
-            ((ShellDependent)handler).cliSetShell(this);
+            ((ShellDependent) handler).cliSetShell(this);
         }
     }
 
@@ -155,10 +156,9 @@ public class Shell {
      * This method is very similar to addMainHandler, except ShellFactory
      * will pass all handlers registered with this method to all this shell's subshells.
      *
-     * @see asg.cliche.Shell#addMainHandler(java.lang.Object, java.lang.String)
-     *
      * @param handler Object which should be registered as handler.
-     * @param prefix Prefix that should be prepended to all handler's command names.
+     * @param prefix  Prefix that should be prepended to all handler's command names.
+     * @see asg.cliche.Shell#addMainHandler(java.lang.Object, java.lang.String)
      */
     public void addAuxHandler(Object handler, String prefix) {
         if (handler == null) {
@@ -172,7 +172,7 @@ public class Shell {
         outputConverter.addDeclaredConverters(handler);
 
         if (handler instanceof ShellDependent) {
-            ((ShellDependent)handler).cliSetShell(this);
+            ((ShellDependent) handler).cliSetShell(this);
         }
     }
 
@@ -208,27 +208,29 @@ public class Shell {
      * Function to allow changing path at runtime; use with care to not break
      * the semantics of sub-shells (if you're using them) or use to emulate
      * tree navigation without subshells
+     *
      * @param path New path
      */
     public void setPath(List<String> path) {
         this.path = path;
     }
-    
+
     /**
      * Runs the command session.
      * Create the Shell, then run this method to listen to the user,
      * and the Shell will invoke Handler's methods.
+     *
      * @throws java.io.IOException when can't readLine() from input.
      */
     public void commandLoop() throws IOException {
         for (Object handler : allHandlers) {
             if (handler instanceof ShellManageable) {
-                ((ShellManageable)handler).cliEnterLoop();
+                ((ShellManageable) handler).cliEnterLoop();
             }
         }
         output.output(appName, outputConverter);
         String command = "";
-        while (!command.trim().equals("exit")) {
+        while (true) {
             try {
                 command = input.readCommand(path);
                 processLine(command);
@@ -237,16 +239,15 @@ public class Shell {
                 output.outputException(command, te);
             } catch (CLIException clie) {
                 lastException = clie;
-                if (!command.trim().equals("exit")) {
-                    output.outputException(clie);
-                }
+                output.outputException(clie);
+
             }
         }
-        for (Object handler : allHandlers) {
-            if (handler instanceof ShellManageable) {
-                ((ShellManageable)handler).cliLeaveLoop();
-            }
-        }
+//        for (Object handler : allHandlers) {
+//            if (handler instanceof ShellManageable) {
+//                ((ShellManageable)handler).cliLeaveLoop();
+//            }
+//        }
     }
 
     private void outputHeader(String header, Object[] parameters) {
@@ -258,16 +259,15 @@ public class Shell {
     }
 
     private static final String HINT_FORMAT =
-            "For more information enter "+ Util.Colorize(Ansi.Color.CYAN,"help");
+            "For more information enter " + Util.Colorize(Ansi.Color.CYAN, "help");
 
     /**
      * You can operate Shell linewise, without entering the command loop.
      * All output is directed to shell's Output.
-     * 
-     * @see asg.cliche.Output
      *
      * @param line Full command line
      * @throws asg.cliche.CLIException This may be TokenException
+     * @see asg.cliche.Output
      */
     public void processLine(String line) throws CLIException {
         if (line.trim().equals("?")) {
@@ -279,11 +279,11 @@ public class Shell {
                 processCommand(discriminator, tokens);
             }
         }
-    }    
-    
+    }
+
     private void processCommand(String discriminator, List<Token> tokens) throws CLIException {
         assert discriminator != null;
-        assert ! discriminator.equals("");
+        assert !discriminator.equals("");
 
         ShellCommand commandToInvoke = commandTable.lookupCommand(discriminator, tokens);
 
@@ -292,7 +292,7 @@ public class Shell {
                 commandToInvoke.getMethod().isVarArgs());
 
         outputHeader(commandToInvoke.getHeader(), parameters);
-        
+
         long timeBefore = Calendar.getInstance().getTimeInMillis();
         Object invocationResult = commandToInvoke.invoke(parameters);
         long timeAfter = Calendar.getInstance().getTimeInMillis();
@@ -330,11 +330,10 @@ public class Shell {
     public void setAppName(String appName) {
         this.appName = appName;
     }
-    
+
     public String getAppName() {
         return appName;
     }
-
 
 
 }
