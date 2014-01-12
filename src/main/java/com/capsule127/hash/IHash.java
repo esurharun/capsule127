@@ -8,10 +8,10 @@ public interface IHash {
 
     public IHashTypeDescription hash_type();
 
-    public byte[] key();
+    public String user();
 
-    public byte[] hash();
+    public String hash();
 
-    public byte[] salt();
+    public String salt();
 
 }

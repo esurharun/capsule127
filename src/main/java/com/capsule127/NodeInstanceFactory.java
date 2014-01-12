@@ -16,16 +16,32 @@ import java.util.Vector;
 /**
  * Created by marcus on 09/01/14.
  */
-public class NodeFactory {
+public class NodeInstanceFactory {
 
 
-    private static Vector<HazelcastInstance> instances = new Vector<HazelcastInstance>();
+    public static Vector<NodeInstance> instances = new Vector<NodeInstance>();
 
     @Command(name = "node-start", description = "Starts a new node on network", abbrev = "ns")
     public static void node_start() {
 
 
+
+        String WG = Settings.get(Settings.OPT_WG);
+        String WG_PASS = Settings.get(Settings.OPT_WG_PASS);
+
+
+        node_start(WG,WG_PASS);
+    }
+
+
+    @Command(name = "node-start", description = "Starts a new node on network", abbrev = "ns")
+    public static void node_start(@Param(name= "workgroup", description = "Workgroup name")String group,
+                                  @Param(name = "workgroup_pass", description = "Workgroup password") String group_pass) {
+
+
 //        ClientConfig cc = new ClientConfig();
+
+
 //
 //        String ext_nodes;
 //        if ((ext_nodes = Settings.map.get("EXT_NODES")) != null) {
@@ -37,20 +53,34 @@ public class NodeFactory {
 //            }
 //        }
 
-        HazelcastInstance hi = Hazelcast.newHazelcastInstance();
+        Config cfg = new Config();
 
-        instances.add(hi);
+        if (group != null && group.trim().length() > 0) {
+            cfg.getGroupConfig().setName(group);
+            if (group_pass != null)
+                cfg.getGroupConfig().setPassword(group_pass);
+        }
+
+
+
+        NodeInstance ni = new NodeInstance();
+        ni.hi = Hazelcast.newHazelcastInstance(cfg);
+
+
+
+        instances.add(ni);
 
     }
+
 
     @Command(name = "node-list", description = "Lists started nodes on local computer", abbrev = "nl")
     public static void node_list() {
 
         int c = 0;
-        for (HazelcastInstance hi : instances) {
+        for (NodeInstance ni : instances) {
 
 
-            ShellFactory.io.println(Util.Colorize(Ansi.Color.YELLOW, "[" + c + "] ") + hi.getName());
+            ShellFactory.io.println(Util.Colorize(Ansi.Color.YELLOW, "[" + c + "] ") + ni.hi.getName());
 
             c++;
 
@@ -70,11 +100,11 @@ public class NodeFactory {
         Vector<String> sAddresses = new Vector<String>();
 
 
-        for (HazelcastInstance hi : instances) {
+        for (NodeInstance ni : instances) {
 
 
 
-            for (Member m : hi.getCluster().getMembers()) {
+            for (Member m : ni.hi.getCluster().getMembers()) {
                   String s = m.getInetSocketAddress().getAddress().getHostAddress()+
                             ":"+m.getInetSocketAddress().getPort();
 
@@ -96,13 +126,13 @@ public class NodeFactory {
         if (instances.size() == 0)
             return;
 
-        HazelcastInstance hi = instances.elementAt(idx);
+        NodeInstance ni = instances.elementAt(idx);
 
-        if (hi != null) {
+        if (ni != null) {
 
-            AnsiConsole.out.println("Shutting down: " + Util.Colorize(Ansi.Color.CYAN, hi.getName()));
+            AnsiConsole.out.println("Shutting down: " + Util.Colorize(Ansi.Color.CYAN, ni.hi.getName()));
 
-            hi.shutdown();
+            ni.hi.shutdown();
 
             instances.removeElementAt(idx);
         }
@@ -132,11 +162,11 @@ public class NodeFactory {
 
         }
 
-        String currNodes = Settings.map.get("EXT_NODES");
+        String currNodes = Settings.get("EXT_NODES");
 
         currNodes = currNodes == null ? "" : currNodes;
 
-        Settings.map.put("EXT_NODES",currNodes+node+";");
+        Settings.set("EXT_NODES", currNodes + node + ";");
 
 
     }

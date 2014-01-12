@@ -13,5 +13,7 @@ public interface IHashTypeDescription {
 
     public IHashGenerator[] generators();
 
+    public IHash fromTextLine(String userColumn, String hashColumn);
+
 
 }

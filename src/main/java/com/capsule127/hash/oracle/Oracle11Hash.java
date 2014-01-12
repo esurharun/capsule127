@@ -5,27 +5,29 @@ import com.capsule127.hash.IHashGenerator;
 import com.capsule127.hash.IHashTypeDescription;
 
 /**
- * Created by marcus on 09/01/14.
+ * Created by marcus on 12/01/14.
  */
-public class OracleHash implements IHashTypeDescription {
+public class Oracle11Hash implements IHashTypeDescription {
     @Override
     public String name() {
-        return "ORACLE";
+        return "ORACLE11";
     }
 
     @Override
     public String description() {
-        return "Oracle DES hashes < 11g";
+        return "ORACLE SHA1 Hashes >= 11g";
     }
 
     @Override
     public String abbrev() {
-        return "O";
+        return "O11";
     }
 
     @Override
     public IHashGenerator[] generators() {
-        return new IHashGenerator[]{new OracleHashGenerator()};
+        return new IHashGenerator[] {
+                new Oracle11HashGenerator()
+        };
     }
 
     @Override
@@ -34,7 +36,7 @@ public class OracleHash implements IHashTypeDescription {
         return new IHash() {
             @Override
             public IHashTypeDescription hash_type() {
-                return OracleHash.this;
+                return Oracle11Hash.this;
             }
 
             @Override
@@ -44,14 +46,15 @@ public class OracleHash implements IHashTypeDescription {
 
             @Override
             public String hash() {
-                return hashColumn;
+                return hashColumn.substring(0,40);
             }
 
             @Override
             public String salt() {
-                return null;
+                return hashColumn.substring(40,60);
             }
         };
     }
+
 
 }

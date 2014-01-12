@@ -10,4 +10,8 @@ public interface IHashGenerator {
 
     public String generate(byte[] input, byte[] salt) throws Exception;
 
+    public String description();
+
+    public boolean test();
+
 }

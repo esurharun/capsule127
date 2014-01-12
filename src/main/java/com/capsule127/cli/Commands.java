@@ -3,12 +3,10 @@ package com.capsule127.cli;
 import asg.cliche.Command;
 import asg.cliche.Param;
 import asg.cliche.ShellFactory;
-import com.capsule127.NodeFactory;
+import com.capsule127.NodeInstanceFactory;
 import com.capsule127.Settings;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-
-import java.util.StringTokenizer;
 
 /**
  * Created by marcus on 09/01/14.
@@ -38,9 +36,8 @@ public class Commands {
         }
 
 
-        Settings.map.put(vals[0],vals[1]);
+        Settings.set(vals[0],vals[1]);
 
-        ShellFactory.io.println(vals[0]+" = "+vals[1]);
 
     }
 
@@ -48,9 +45,9 @@ public class Commands {
     @Command(name = "set", description = "Lists the parameters", abbrev = "s") // two,
     public void set() {
 
-        for (String key : Settings.map.keySet()) {
+        for (String key : Settings.keySet()) {
 
-            ShellFactory.io.println(key + "\t=\t" + Settings.map.get(key));
+            ShellFactory.io.println(key + "\t=\t" + Settings.get(key));
 
         }
     }
@@ -60,7 +57,7 @@ public class Commands {
 
         AnsiConsole.out.println("Quitting...");
 
-        NodeFactory.node_shutdown_all();
+        NodeInstanceFactory.node_shutdown_all();
 
         AnsiConsole.out.println(Util.Colorize(Ansi.Color.MAGENTA, "Bye!!!"));
 

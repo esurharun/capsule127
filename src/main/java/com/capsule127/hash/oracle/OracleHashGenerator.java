@@ -44,6 +44,12 @@ public class OracleHashGenerator implements IHashGenerator {
     }
 
     @Override
+    public String description() {
+        return "Oracle < 11g Java Hash Generator";
+    }
+
+
+    @Override
     public String generate(String user, String password, String salt) throws Exception {
 
         // instructions see http://www.sans.org/reading_room/special/?id=oracle_pass&ref=911
@@ -80,5 +86,20 @@ public class OracleHashGenerator implements IHashGenerator {
 
         return hex.toUpperCase();
 
+    }
+
+    @Override
+    public boolean test() {
+
+        try {
+
+            return generate("SYSTEM","THALES",null).equalsIgnoreCase("9EEDFA0AD26C6D52")
+                    && generate("SIMON","A",null).equalsIgnoreCase("4F8BC1809CB2AF77")
+                    && generate("SIMON","THALES2",null).equalsIgnoreCase("183D72325548EF11")
+                    && generate("BOB","LONG_MOT_DE_PASSE_OUI",null).equalsIgnoreCase("EC8147ABB3373D53")
+                    ;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
