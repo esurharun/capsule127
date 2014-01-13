@@ -1,5 +1,5 @@
 + Add persistence options to store hashes into local hsqldb file
 + Import hashes to cloud function
-- Import dictionaries to cloud function
++ Import dictionaries to cloud function
 - Add butcher thread
 - Add persistence options to store found hash values

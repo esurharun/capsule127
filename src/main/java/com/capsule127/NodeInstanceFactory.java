@@ -4,12 +4,13 @@ import asg.cliche.Command;
 import asg.cliche.Param;
 import asg.cliche.ShellFactory;
 import com.capsule127.cli.Util;
-import com.hazelcast.client.config.ClientConfig;
+import com.capsule127.wordlist.Wordlist;
+import com.capsule127.wordlist.WordlistSerializer;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.*;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
-import sun.print.resources.serviceui;
 
 import java.util.Vector;
 
@@ -61,12 +62,15 @@ public class NodeInstanceFactory {
                 cfg.getGroupConfig().setPassword(group_pass);
         }
 
+        SerializerConfig sc = new SerializerConfig()
+                .setImplementation(new WordlistSerializer())
+                .setTypeClass(Wordlist.class);
+
+        cfg.getSerializationConfig().addSerializerConfig(sc);
 
 
         NodeInstance ni = new NodeInstance();
         ni.hi = Hazelcast.newHazelcastInstance(cfg);
-
-
 
         instances.add(ni);
 

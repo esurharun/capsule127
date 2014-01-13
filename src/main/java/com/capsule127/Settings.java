@@ -24,15 +24,16 @@ public class Settings {
     public static final String OPT_WG_PASS = "WORKGROUP_PASS";
     public static final String OPT_EM_SIZE = "ELASTIC_MEMORY_SIZE";
     public static final String OPT_USE_LOCAL_STORAGE = "USE_LOCAL_STORAGE";
+    public static final String OPT_WL_MAX_CH_SIZE = "WORDLIST_MAX_CHUNK_SIZE";
 
     private static final Vector<OptChangeListener> optChangeListeners = new Vector<OptChangeListener>();
 
 
     private static final String[] const_keys = new String[]{
-            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE
+            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE, OPT_WL_MAX_CH_SIZE
     };
     private static final String[] const_vals = new String[]{
-            "C127", "C127", "128", "false"
+            "C127", "C127", "128", "false", "2560"
     };
 
     private static void fill_empty_ones() {
@@ -50,6 +51,8 @@ public class Settings {
 
 
     static {
+
+        optChangeListeners.add(integerCheckListener(OPT_WL_MAX_CH_SIZE));
 
         optChangeListeners.add(new OptChangeListener() {
 
@@ -202,6 +205,38 @@ public class Settings {
         public boolean beforeChange(String newValue);
 
     }
+
+
+    private static OptChangeListener integerCheckListener(String key) {
+
+        final String _key = key;
+
+        return new OptChangeListener() {
+            @Override
+            public String key() {
+                return _key;
+            }
+
+            @Override
+            public boolean beforeChange(String value) {
+
+
+                try {
+                    Integer.parseInt(value);
+
+
+                    return true;
+
+                } catch (NumberFormatException ex) {
+
+                    Logger.getAnonymousLogger().warning("Invalid value: " + value);
+
+                }
+
+                return false;        }
+        };
+    }
+
 
 
 }

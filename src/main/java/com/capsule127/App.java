@@ -27,6 +27,9 @@ public class App {
             new Oracle11Hash()
     };
 
+
+    static int termCountLeft = 7;
+
     public static void main(String[] args) throws IOException {
 
 
@@ -36,7 +39,14 @@ public class App {
         SignalHandler sh = new SignalHandler() {
             @Override
             public void handle(Signal signal) {
-                AnsiConsole.out.println("Use "+ Util.Colorize(Ansi.Color.CYAN,"exit")+ " command to log off");
+
+                if (termCountLeft == 0) {
+                    System.exit(0);
+                }
+
+                AnsiConsole.out.println("Use "+ Util.Colorize(Ansi.Color.CYAN,"exit")+ " command to log off otherwise "+Util.Colorize(Ansi.Color.YELLOW, ""+termCountLeft)+" term signal required to terminate");
+
+                termCountLeft--;
             }
         };
 
@@ -50,7 +60,9 @@ public class App {
                 new Commands(),
                 new NodeInstanceFactory(),
                 new C127Logger(),
-                new HashImporter())
+                new HashImporter(),
+                new DictImporter(),
+                new CloudCommands())
                 .commandLoop(); // and three.
 
 

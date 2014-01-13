@@ -1,6 +1,7 @@
 package com.capsule127;
 
 import asg.cliche.Command;
+import asg.cliche.Param;
 import com.capsule127.hash.IHash;
 import com.capsule127.hash.IHashTypeDescription;
 import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
@@ -21,8 +22,8 @@ public class HashImporter {
         return Logger.getLogger("HashImporter");
     }
 
-    @Command(name = "hashes_import", description = "Imports hashes from the file specified to the cloud", abbrev = "hsi")
-    public static void hashes_import(String fileLoc) {
+    @Command(name = "hashes-import", description = "Imports hashes from the file specified to the cloud", abbrev = "hsi")
+    public static void hashes_import(@Param(name = "File location", description = "Points out the path of the hashes file") String fileLoc) {
 
         if (NodeInstanceFactory.instances.size() == 0) {
 
