@@ -40,4 +40,24 @@ public class DictImporter {
 
 
     }
+
+
+    @Command(name = "dict-import", description = "Imports dictionary from the file specified to the cloud", abbrev = "di")
+    public static void dict_import(
+                                   @Param(name = "File location", description = "Points out the path of file includes text dictionary") String fileLoc) {
+
+        if (NodeInstanceFactory.instances.size() == 0) {
+
+            logger().warning("No node has started yet, cannot import dictionaries");
+
+            return;
+
+        }
+
+
+        dict_import(Settings.get(Settings.OPT_WL_DEFAULT_NAME),fileLoc);
+
+
+
+    }
 }

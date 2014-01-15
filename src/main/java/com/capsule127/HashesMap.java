@@ -60,6 +60,16 @@ public class HashesMap {
         addHash(_hash.user(), _hash.hash(), _hash.salt());
     }
 
+    public void markHashAsFound(IHash _hash, String password) {
+
+        for (NodeInstance ni : NodeInstanceFactory.instances) {
+            ni.publishJackpot(_hash,password);
+        }
+
+        getMap().remove(_hash.user());
+
+    }
+
     public List<IHash> getHashes() {
 
         Vector<IHash> ret = new Vector<IHash>();
@@ -95,6 +105,9 @@ public class HashesMap {
                 public String salt() {
                     return h_s[1];
                 }
+
+
+
             });
 
         }

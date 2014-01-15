@@ -40,19 +40,6 @@ public class NodeInstanceFactory {
                                   @Param(name = "workgroup_pass", description = "Workgroup password") String group_pass) {
 
 
-//        ClientConfig cc = new ClientConfig();
-
-
-//
-//        String ext_nodes;
-//        if ((ext_nodes = Settings.map.get("EXT_NODES")) != null) {
-//
-//            String[] nodes = ext_nodes.split(";");
-//
-//            for (String node : nodes) {
-//                cc.addAddress(node);
-//            }
-//        }
 
         Config cfg = new Config();
 
@@ -71,6 +58,8 @@ public class NodeInstanceFactory {
 
         NodeInstance ni = new NodeInstance();
         ni.hi = Hazelcast.newHazelcastInstance(cfg);
+
+        ni.registerForJackpots();
 
         instances.add(ni);
 

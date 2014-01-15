@@ -25,15 +25,16 @@ public class Settings {
     public static final String OPT_EM_SIZE = "ELASTIC_MEMORY_SIZE";
     public static final String OPT_USE_LOCAL_STORAGE = "USE_LOCAL_STORAGE";
     public static final String OPT_WL_MAX_CH_SIZE = "WORDLIST_MAX_CHUNK_SIZE";
+    public static final String OPT_WL_DEFAULT_NAME = "WORDLIST_DEFAULT_NAME";
 
     private static final Vector<OptChangeListener> optChangeListeners = new Vector<OptChangeListener>();
 
 
     private static final String[] const_keys = new String[]{
-            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE, OPT_WL_MAX_CH_SIZE
+            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE, OPT_WL_MAX_CH_SIZE,OPT_WL_DEFAULT_NAME
     };
     private static final String[] const_vals = new String[]{
-            "C127", "C127", "128", "false", "2560"
+            "C127", "C127", "256", "false", "2560","C127"
     };
 
     private static void fill_empty_ones() {

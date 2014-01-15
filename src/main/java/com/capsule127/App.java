@@ -22,6 +22,8 @@ import java.io.IOException;
 public class App {
 
 
+    public static Cracker _cracker = null;
+
     public static IHashTypeDescription[] supportedHashTypes = new IHashTypeDescription[] {
             new OracleHash(),
             new Oracle11Hash()
@@ -40,13 +42,20 @@ public class App {
             @Override
             public void handle(Signal signal) {
 
-                if (termCountLeft == 0) {
-                    System.exit(0);
+                if (_cracker != null) {
+
+                    _cracker.stop();
+
+                } else {
+
+                    if (termCountLeft == 0) {
+                        System.exit(0);
+                    }
+
+                    AnsiConsole.out.println("Use "+ Util.Colorize(Ansi.Color.CYAN,"exit")+ " command to log off otherwise "+Util.Colorize(Ansi.Color.YELLOW, ""+termCountLeft)+" term signal required to terminate");
+
+                    termCountLeft--;
                 }
-
-                AnsiConsole.out.println("Use "+ Util.Colorize(Ansi.Color.CYAN,"exit")+ " command to log off otherwise "+Util.Colorize(Ansi.Color.YELLOW, ""+termCountLeft)+" term signal required to terminate");
-
-                termCountLeft--;
             }
         };
 
@@ -62,7 +71,9 @@ public class App {
                 new C127Logger(),
                 new HashImporter(),
                 new DictImporter(),
-                new CloudCommands())
+                new CloudCommands(),
+                new CrackerCommands()
+                )
                 .commandLoop(); // and three.
 
 
