@@ -13,7 +13,7 @@ public class CrackerCommands {
 
     /// STATIC METHODS
 
-    @Command(name = "launch-cracker", description = "Launches cracker with specified hash type", abbrev = "launch")
+    @Command(name = "launch-cracker", description = "Launches cracker with specified hash type", abbrev = "lc")
     public static void launch_cracker(@Param(name = "type", description = "Hash type")String hashType,
                                       @Param(name = "wordlist", description = "Wordlist queue name")String wordlist) {
 
@@ -58,6 +58,15 @@ public class CrackerCommands {
        // new Thread(App._cracker).start();
 
         App._cracker.run();
+
+
+
+    }
+
+    @Command(name = "launch-cracker", description = "Launches cracker with specified hash type", abbrev = "lc")
+    public static void launch_cracker(@Param(name = "type", description = "Hash type")String hashType) {
+
+        launch_cracker(hashType, Settings.get(Settings.OPT_WL_DEFAULT_NAME));
 
 
 

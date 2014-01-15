@@ -31,6 +31,7 @@ public class Cracker implements Runnable {
 
     private Boolean stop = false;
 
+    private Boolean suspended = false;
 
     private IHashTypeDescription hashTypeDescription;
     private String dictQueueName;
@@ -51,19 +52,37 @@ public class Cracker implements Runnable {
 
 
     long tryCount = 0;
+    long lastNotifiedTryCount = 0;
+    long networkTryCount = 0;
+    long lastNetworkTryCount = 0;
+    long networkTryCountRetrieveTime = 0;
+    long lastNetworkTryCountRetrieveTime = 0;
 
     long stTime = 0;
+
+    long hashCount = 0;
+    long wlSize = 0;
 
     String lastTriedPass = "";
 
     public void printStatus() {
 
 
-        String format = "Running on %s p/s , tried %s so far. Last tried pass is %s";
+        String format = "Running on %s p/s, hash count = %s, wordlist chunks = %s, tried pass count= %sK, curr pass = %s \n" +
+                "Network power %s p/s";
 
         long diff = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - stTime) ;
 
-        String mess = String.format(format, (double) ( tryCount / diff), tryCount, lastTriedPass);
+        if ( diff == 0)
+            diff =1;
+
+        long networkCount = (networkTryCount-lastNetworkTryCount);
+
+        long networkPower = networkCount == 0 ? 0 :
+                TimeUnit.NANOSECONDS.toSeconds(networkTryCountRetrieveTime-lastNetworkTryCountRetrieveTime)/networkCount;
+
+        String mess = String.format(format, (double) ( tryCount  / diff), hashCount, wlSize, tryCount/1000, lastTriedPass,
+                networkPower);
 
         AnsiConsole.out.println(Util.Colorize(Ansi.Color.YELLOW, "CRACKER: ") + mess);
     }
@@ -86,6 +105,8 @@ public class Cracker implements Runnable {
 
             List<IHash> hashes = hm.getHashes();
 
+            hashCount = hashes.size();
+
 
             stTime = System.nanoTime();
 
@@ -94,6 +115,17 @@ public class Cracker implements Runnable {
                 Wordlist wl = queue.poll();
 
                 if (wl != null) {
+
+                    wlSize = queue.size();
+
+                    if (suspended) {
+
+                        AnsiConsole.out.println("Resuming...");
+
+                        suspended = false;
+
+                    }
+
                     Vector<String> passws = wl.getVector();
 
 
@@ -101,13 +133,17 @@ public class Cracker implements Runnable {
 
                         Boolean found = false;
 
+                        String generated = null;
+
                         for (IHash hash : hashes) {
 
                             tryCount++;
 
                             IHashGenerator ihg = hash.hash_type().generators()[0];
 
-                            String generated = ihg.generate(hash.user(), pass, hash.salt());
+                            if (hash.hash_type().requiresUserOrSaltPerGeneration() || generated == null)
+                                generated = ihg.generate(hash.user(), pass, hash.salt());
+
 
                             lastTriedPass = pass;
 
@@ -121,12 +157,18 @@ public class Cracker implements Runnable {
 
                         }
 
-                        if (found)
+                        if (found) {
                             hashes = hm.getHashes();
+                            hashCount = hashes.size();
+                        }
 
                     }
 
-                    ni.hi.getAtomicLong("tryCount").addAndGet(tryCount);
+                    lastNetworkTryCount = networkTryCount;
+                    networkTryCount = ni.hi.getAtomicLong("tryCount").addAndGet(tryCount-lastNotifiedTryCount);
+                    lastNetworkTryCountRetrieveTime = networkTryCountRetrieveTime;
+                    networkTryCountRetrieveTime = System.nanoTime();
+                    lastNotifiedTryCount = tryCount;
 
 
                     long diff = System.nanoTime() - timeBeforeLastStatus;
@@ -142,11 +184,16 @@ public class Cracker implements Runnable {
                 } else {
 
 
-                    AnsiConsole.out().println("Active wordlist finished... waiting for new passes to try.");
+                    if (!suspended) {
 
-                    printStatus();
+                        AnsiConsole.out().println("Active wordlist finished... SUSPENDING");
 
-                    Thread.sleep(10000);
+                        printStatus();
+
+                        suspended = true;
+
+                        Thread.sleep(10000);
+                    }
                 }
 
 

@@ -1,40 +1,41 @@
-package com.capsule127.hash.oracle;
+package com.capsule127.hash.mssql;
 
 import com.capsule127.hash.IHash;
 import com.capsule127.hash.IHashGenerator;
 import com.capsule127.hash.IHashTypeDescription;
 
 /**
- * Created by marcus on 09/01/14.
+ * Created by marcus on 15/01/14.
  */
-public class OracleHash implements IHashTypeDescription {
+public class Mssql2012Hash implements IHashTypeDescription {
     @Override
     public String name() {
-        return "ORACLE";
+        return "MSSQL2012";
     }
 
     @Override
     public String description() {
-        return "Oracle DES hashes < 11g";
+        return "Mssql 2012 hash";
     }
 
     @Override
     public String abbrev() {
-        return "O";
+        return "MS2012";
     }
 
     @Override
     public IHashGenerator[] generators() {
-        return new IHashGenerator[]{new OracleHashGenerator()};
+        return new IHashGenerator[] {
+                new Mssql2012HashGenerator()
+        };
     }
 
     @Override
     public IHash fromTextLine(final String userColumn, final String hashColumn) {
-
         return new IHash() {
             @Override
             public IHashTypeDescription hash_type() {
-                return OracleHash.this;
+                return Mssql2012Hash.this;
             }
 
             @Override
@@ -44,12 +45,12 @@ public class OracleHash implements IHashTypeDescription {
 
             @Override
             public String hash() {
-                return hashColumn;
+                return hashColumn.substring(14);
             }
 
             @Override
             public String salt() {
-                return null;
+                return hashColumn.substring(6,14);
             }
         };
     }
@@ -58,5 +59,4 @@ public class OracleHash implements IHashTypeDescription {
     public boolean requiresUserOrSaltPerGeneration() {
         return true;
     }
-
 }

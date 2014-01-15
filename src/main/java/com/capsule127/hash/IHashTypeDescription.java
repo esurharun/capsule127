@@ -15,5 +15,7 @@ public interface IHashTypeDescription {
 
     public IHash fromTextLine(String userColumn, String hashColumn);
 
+    public boolean requiresUserOrSaltPerGeneration();
+
 
 }

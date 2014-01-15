@@ -2,6 +2,7 @@ package com.capsule127;
 
 import com.capsule127.hash.IHashGenerator;
 import com.capsule127.hash.IHashTypeDescription;
+import com.capsule127.hash.mysql.MysqlPre41Hash;
 import com.capsule127.hash.oracle.Oracle11Hash;
 import com.capsule127.hash.oracle.OracleHash;
 import org.junit.Test;
@@ -12,12 +13,7 @@ import org.junit.Test;
 public class HashGeneratorsTest {
 
 
-    private static final IHashTypeDescription[] hashTypes = new IHashTypeDescription[]{
-
-            new OracleHash(),
-            new Oracle11Hash()
-    };
-
+    private static final IHashTypeDescription[] hashTypes = App.supportedHashTypes;
 
     @Test
     public void testGenerators() {

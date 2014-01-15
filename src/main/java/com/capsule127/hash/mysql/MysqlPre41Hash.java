@@ -1,31 +1,34 @@
-package com.capsule127.hash.oracle;
+package com.capsule127.hash.mysql;
 
 import com.capsule127.hash.IHash;
 import com.capsule127.hash.IHashGenerator;
 import com.capsule127.hash.IHashTypeDescription;
+import com.capsule127.hash.oracle.Oracle11HashGenerator;
 
 /**
- * Created by marcus on 09/01/14.
+ * Created by marcus on 15/01/14.
  */
-public class OracleHash implements IHashTypeDescription {
+public class MysqlPre41Hash implements IHashTypeDescription {
     @Override
     public String name() {
-        return "ORACLE";
+        return "MYSQL4";
     }
 
     @Override
     public String description() {
-        return "Oracle DES hashes < 11g";
+        return "Mysql Hashes < 4.1";
     }
 
     @Override
     public String abbrev() {
-        return "O";
+        return "MY4";
     }
 
     @Override
     public IHashGenerator[] generators() {
-        return new IHashGenerator[]{new OracleHashGenerator()};
+        return new IHashGenerator[] {
+                new MysqlPre41HashGenerator()
+        };
     }
 
     @Override
@@ -34,7 +37,7 @@ public class OracleHash implements IHashTypeDescription {
         return new IHash() {
             @Override
             public IHashTypeDescription hash_type() {
-                return OracleHash.this;
+                return MysqlPre41Hash.this;
             }
 
             @Override
@@ -56,7 +59,6 @@ public class OracleHash implements IHashTypeDescription {
 
     @Override
     public boolean requiresUserOrSaltPerGeneration() {
-        return true;
+        return false;
     }
-
 }

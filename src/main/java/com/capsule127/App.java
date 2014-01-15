@@ -8,8 +8,14 @@ import asg.cliche.ShellFactory;
 import com.capsule127.cli.Commands;
 import com.capsule127.cli.Util;
 import com.capsule127.hash.IHashTypeDescription;
+import com.capsule127.hash.mssql.Mssql2005Hash;
+import com.capsule127.hash.mssql.Mssql2012Hash;
+import com.capsule127.hash.mysql.MysqlPre41Hash;
+import com.capsule127.hash.mysql.MysqlSha1Hash;
 import com.capsule127.hash.oracle.Oracle11Hash;
 import com.capsule127.hash.oracle.OracleHash;
+import com.capsule127.hash.windows.LMHash;
+import com.capsule127.hash.windows.NTHash;
 import com.capsule127.hazelcast.C127Logger;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -26,7 +32,13 @@ public class App {
 
     public static IHashTypeDescription[] supportedHashTypes = new IHashTypeDescription[] {
             new OracleHash(),
-            new Oracle11Hash()
+            new Oracle11Hash(),
+            new MysqlPre41Hash(),
+            new MysqlSha1Hash(),
+            new Mssql2005Hash(),
+            new Mssql2012Hash(),
+            new LMHash(),
+            new NTHash()
     };
 
 

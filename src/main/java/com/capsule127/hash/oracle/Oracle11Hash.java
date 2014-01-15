@@ -15,7 +15,7 @@ public class Oracle11Hash implements IHashTypeDescription {
 
     @Override
     public String description() {
-        return "ORACLE SHA1 Hashes >= 11g";
+        return "Oracle SHA1 Hashes >= 11g";
     }
 
     @Override
@@ -54,6 +54,11 @@ public class Oracle11Hash implements IHashTypeDescription {
                 return hashColumn.substring(40,60);
             }
         };
+    }
+
+    @Override
+    public boolean requiresUserOrSaltPerGeneration() {
+        return true;
     }
 
 

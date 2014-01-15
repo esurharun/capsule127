@@ -1,11 +1,16 @@
 package com.capsule127;
 
 import asg.cliche.Command;
+import asg.cliche.Param;
 import com.bethecoder.ascii_table.ASCIITable;
+import com.capsule127.hash.IHash;
+import com.capsule127.hash.IHashTypeDescription;
 import com.hazelcast.core.DistributedObject;
 import com.sun.org.apache.xerces.internal.dom.AttrNSImpl;
 import org.fusesource.jansi.AnsiConsole;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -90,6 +95,74 @@ public class CloudCommands {
 
             AnsiConsole.out.println(ASCIITable.getInstance().getTable(tableHeaders,sTableData));
         }
+
+
+    }
+
+    @Command(name = "dump-hashes", description = "Dumps uncracked hashes from cloud to local file",abbrev = "dh")
+    public void dump_hashes(@Param(name = "Hash type", description = "Specifies hash type such as SHA1, MD5 etc.") String hashType,
+                            @Param(name= "File name", description = "File path to save")
+                            String fileName) {
+
+
+        if (NodeInstanceFactory.instances.size() == 0) {
+
+            logger().warning("No node has started yet");
+
+            return;
+
+        }
+
+        NodeInstance ni = NodeInstanceFactory.instances.elementAt(0);
+
+
+        IHashTypeDescription _iht =null;
+
+        for (IHashTypeDescription iht : App.supportedHashTypes) {
+
+            if (iht.abbrev().equalsIgnoreCase(hashType)) {
+                _iht = iht;
+                break;
+            }
+        }
+
+        if (_iht == null) {
+
+            logger().warning(hashType + " is not a valid hash type name.");
+
+            return;
+
+        }
+
+
+        try {
+
+            FileWriter fw = new FileWriter(fileName,true);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            int c = 0;
+            for (IHash ih : ni.getHashesMapFor(_iht).getHashes()) {
+
+
+                String line = String.format("%s$%s#%s\n", ih.hash_type().abbrev(), ih.user(),
+                        ih.salt() != null ? ih.hash() + ih.salt() : ih.hash());
+
+                bw.write(line);
+                c++;
+
+            }
+
+            AnsiConsole.out.println(c+" hashes dumped to : "+fileName+" successfully.");
+
+            bw.flush();
+            bw.close();
+
+        } catch (Exception ex) {
+
+            logger().warning("Error during dumping hashes: "+ex.getMessage());
+
+        }
+
 
 
     }
