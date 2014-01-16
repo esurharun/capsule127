@@ -12,7 +12,10 @@ Currently available for all platforms with JRE 6 but not tested on Windows platf
 It is using Hazelcast as open-source datagrid for high-performance data flow over network
 and concurrency necessities. 
 
-It's at very early stage.
+It's at very early stage. Please check out demonstration video.
+
+[![Capsule127 Demonstration](http://img.youtube.com/vi/UdixyXsB1MQ/0.jpg)](http://www.youtube.com/watch?v=UdixyXsB1MQ)
+
 
 For now, it just supports following hash types;
 
