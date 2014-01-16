@@ -3,3 +3,11 @@
 + Import dictionaries to cloud function
 + Add butcher thread
 + Add persistence options to store found hash values
+- Brute-Force cracking (mostly done)
+- Rules file integration for generating passwords to crack
+- Adding various hash implementations
+- Hash-file conversion tools from JTR and various hash-file types.
+- Pause/Resume functions to pause/resume all the cloud
+- Native interface (depends on Hazelcast c++ implementation otherwise should change data-grid module)
+- Adding Jack The Ripper, oclHashCat integration
+- Web interface (maybe?)
