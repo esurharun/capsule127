@@ -1,9 +1,10 @@
+~~~~~
   ____  _____   ______    ______ __ __ |  |    ____  /_   |\_____  \ \______  \
 _/ ___\ \__  \  \____ \  /  ___/|  |  \|  |  _/ __ \  |   | /  ____/     /    /
 \  \___  / __ \_|  |_> > \___ \ |  |  /|  |__\  ___/  |   |/       \    /    / 
  \___  >(____  /|   __/ /____  >|____/ |____/ \___  > |___|\_______ \  /____/  
      \/      \/ |__|         \/                   \/               \/          
-
+~~~~~
 
 Capsule127 is a password cracker using data-grid technologies. 
 
@@ -47,15 +48,18 @@ array.
 
 Hash file format is very simple to understand. It's pattern is just like below;
 
-[HASHTYPE]$[USERNAME]#[HASH]
+**[HASHTYPE]**$**[USERNAME]**#**[HASH]**
 
 Hash type values are included in sources which implements IHashTypeDescription classes. Take look at 
 the implemented hash types paragraph up, you should see the hash types within parantheses. Here is an
 example hash file down below;
 
+
+~~~~
 O$SIMON#4F8BC1809CB2AF77
 O11$SYSTEM#71752CE0530476A8B2E0DD218AE59CB71B211D7E1DB70EE23BFB23BDFD48
 MS2005$SIMON#0x01006ACDF9FF5D2E211B392EEF1175EFFE13B3A368CE2F94038B
+~~~~
 
 How to install
 --------------
@@ -64,11 +68,11 @@ You should have Maven installed.
 
 Just clone the git repository and run
 
-mvn compile exec:java
+  `mvn compile exec:java`
 
 If you want to deploy as a jar file just type
 
-mvn install
+  `mvn install`
 
 and just copy the file target/com.capsule127-[version].jar to any platform you want. Jar file includes
 all necessary files within. 
@@ -127,7 +131,8 @@ You can dump hashes left on cloud (not cracked yet) by using `hashes-import` com
 You can see any time whether a node joined on network or disconnected on capsule127 
 interface live like below;
 
-`
+
+~~~~~
 Members [5] {
 	Member [192.168.0.103]:5701
 	Member [192.168.0.106]:5701
@@ -135,7 +140,7 @@ Members [5] {
 	Member [192.168.0.105]:5702
 	Member [192.168.0.10]:5701 this
 }
-`
+~~~~~
 
 You can add a remote node which is not automatically-discovered by capsule127 by adding
 it manually to using `add-node` command.
@@ -159,18 +164,3 @@ Planning features
 * Native interface (depends on Hazelcast c++ implementation otherwise should change data-grid module)
 * Adding Jack The Ripper, oclHashCat integration
 * Web interface (maybe?)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
