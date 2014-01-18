@@ -159,7 +159,6 @@ For more information and help, just get in touch with developer esur[dot]harun[a
 
 Planning features
 
-* Brute-Force cracking (mostly done)
 * Rules file integration for generating passwords to crack
 * Adding various hash implementations
 * Hash-file conversion tools from JTR and various hash-file types.
