@@ -276,13 +276,14 @@ public class Cracker implements Runnable {
                 try {
                     bq.take().run();
                 } catch (InterruptedException e) {
-                    //e.printStackTrace();
                     try {
                         Thread.sleep(5);
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
+
                 }
+
             }
 
         }

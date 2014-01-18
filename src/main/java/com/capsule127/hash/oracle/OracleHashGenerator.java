@@ -1,6 +1,10 @@
 package com.capsule127.hash.oracle;
 
 import com.capsule127.hash.IHashGenerator;
+import org.bouncycastle.crypto.engines.DESEngine;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.util.encoders.Hex;
 
 import javax.crypto.Cipher;
@@ -11,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * Created by marcus on 09/01/14.
@@ -24,11 +29,6 @@ public class OracleHashGenerator implements IHashGenerator {
             };
     private static final IvParameterSpec ips = new IvParameterSpec(new byte[8]);
 
-
-
-    static {
-
-    }
 
     @Override
     public String description() {
@@ -53,24 +53,36 @@ public class OracleHashGenerator implements IHashGenerator {
         return generate(input, null);
     }
 
+
+
+    //static Cipher des_cipher = null;
+    SecretKey key = null;
+
+    private Cipher des_cipher = null;
+
     @Override
-    public String generate(byte[] input, byte[] salt) throws Exception {
+    public  String generate(byte[] input, byte[] salt) throws Exception {
 
 
-        Cipher des_cipher = null;
-        SecretKey key;
 
 
-        try {
-            des_cipher = Cipher.getInstance("DES/CBC/NoPadding");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            System.exit(0);
+        if (des_cipher == null) {
+
+
+            try {
+                des_cipher = Cipher.getInstance("DES/CBC/NoPadding");
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                System.exit(0);
+            } catch (NoSuchPaddingException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+            key = new SecretKeySpec(keyBytes, "DES");
         }
-        key = new SecretKeySpec(keyBytes, "DES");
+
+
+
 
 
         des_cipher.init(Cipher.ENCRYPT_MODE, key, ips);
@@ -96,10 +108,10 @@ public class OracleHashGenerator implements IHashGenerator {
 
         try {
 
-            return generate("SYSTEM","THALES",null).equalsIgnoreCase("9EEDFA0AD26C6D52")
-                    && generate("SIMON","A",null).equalsIgnoreCase("4F8BC1809CB2AF77")
-                    && generate("SIMON","THALES2",null).equalsIgnoreCase("183D72325548EF11")
-                    && generate("BOB","LONG_MOT_DE_PASSE_OUI",null).equalsIgnoreCase("EC8147ABB3373D53")
+            return generate("SYSTEM", "THALES", null).equalsIgnoreCase("9EEDFA0AD26C6D52")
+                    && generate("SIMON", "A", null).equalsIgnoreCase("4F8BC1809CB2AF77")
+                    && generate("SIMON", "THALES2", null).equalsIgnoreCase("183D72325548EF11")
+                    && generate("BOB", "LONG_MOT_DE_PASSE_OUI", null).equalsIgnoreCase("EC8147ABB3373D53")
                     ;
         } catch (Exception e) {
             return false;

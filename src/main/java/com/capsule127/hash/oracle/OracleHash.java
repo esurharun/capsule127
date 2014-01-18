@@ -8,6 +8,8 @@ import com.capsule127.hash.IHashTypeDescription;
  * Created by marcus on 09/01/14.
  */
 public class OracleHash implements IHashTypeDescription {
+
+
     @Override
     public String name() {
         return "ORACLE";
@@ -25,6 +27,8 @@ public class OracleHash implements IHashTypeDescription {
 
     @Override
     public IHashGenerator[] generators() {
+
+
         return new IHashGenerator[]{new OracleHashGenerator()};
     }
 
