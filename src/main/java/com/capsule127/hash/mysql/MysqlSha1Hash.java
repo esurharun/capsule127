@@ -26,7 +26,7 @@ public class MysqlSha1Hash  implements IHashTypeDescription {
     @Override
     public IHashGenerator[] generators() {
         return new IHashGenerator[] {
-                new MysqlPre41HashGenerator()
+                new MysqlSha1HashGenerator()
         };
     }
 

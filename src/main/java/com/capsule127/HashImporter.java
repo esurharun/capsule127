@@ -25,13 +25,9 @@ public class HashImporter {
     @Command(name = "hashes-import", description = "Imports hashes from the file specified to the cloud", abbrev = "hsi")
     public static void hashes_import(@Param(name = "File location", description = "Points out the path of the hashes file") String fileLoc) {
 
-        if (NodeInstanceFactory.instances.size() == 0) {
-
-            logger().warning("No node has started yet, cannot import hashes");
-
+        if (!Common.check_node_started("No node has started yet, cannot import hashes."))
             return;
 
-        }
 
 
         // Adding any instance would be enough to spread accross to all

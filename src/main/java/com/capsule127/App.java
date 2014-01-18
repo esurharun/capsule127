@@ -30,6 +30,8 @@ public class App {
 
     public static Cracker _cracker = null;
 
+    public static BFGenerator _bfGenerator = null;
+
     public static IHashTypeDescription[] supportedHashTypes = new IHashTypeDescription[] {
             new OracleHash(),
             new Oracle11Hash(),
@@ -58,7 +60,10 @@ public class App {
 
                     _cracker.stop();
 
-                } else {
+                } else if (_bfGenerator != null) {
+                    _bfGenerator.stop();
+                } else
+                {
 
                     if (termCountLeft == 0) {
                         System.exit(0);
@@ -84,7 +89,9 @@ public class App {
                 new HashImporter(),
                 new DictImporter(),
                 new CloudCommands(),
-                new CrackerCommands()
+                new CrackerCommands(),
+                new Benchmark(),
+                new BFGeneratorCommands()
                 )
                 .commandLoop(); // and three.
 

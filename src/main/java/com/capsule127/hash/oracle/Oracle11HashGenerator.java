@@ -15,8 +15,8 @@ public class Oracle11HashGenerator implements IHashGenerator {
     @Override
     public String generate(String user, String password, String salt) throws Exception {
 
-        if (salt.length() < 20) {
-            throw  new Exception("Salt length is invalid.");
+        if (salt == null) {
+            throw  new Exception("Salt is invalid.");
         }
 
 

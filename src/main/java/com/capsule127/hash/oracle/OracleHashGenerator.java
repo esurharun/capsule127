@@ -24,22 +24,9 @@ public class OracleHashGenerator implements IHashGenerator {
             };
     private static final IvParameterSpec ips = new IvParameterSpec(new byte[8]);
 
-    static Cipher des_cipher;
-    static byte[] encryptedBytes;
-    static SecretKey key;
 
 
     static {
-        try {
-            des_cipher = Cipher.getInstance("DES/CBC/NoPadding");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            System.exit(0);
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-        key = new SecretKeySpec(keyBytes, "DES");
 
     }
 
@@ -70,8 +57,24 @@ public class OracleHashGenerator implements IHashGenerator {
     public String generate(byte[] input, byte[] salt) throws Exception {
 
 
+        Cipher des_cipher = null;
+        SecretKey key;
+
+
+        try {
+            des_cipher = Cipher.getInstance("DES/CBC/NoPadding");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            System.exit(0);
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+        key = new SecretKeySpec(keyBytes, "DES");
+
+
         des_cipher.init(Cipher.ENCRYPT_MODE, key, ips);
-        encryptedBytes = des_cipher.doFinal(input);
+        byte[] encryptedBytes = des_cipher.doFinal(input);
 
         //5.Encrypt the plaintext string again with DES-CBC, but using the last block of the output
         //of the previous step (ignoring parity bits) as the encryption key.

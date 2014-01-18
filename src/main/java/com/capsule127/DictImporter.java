@@ -21,19 +21,16 @@ public class DictImporter {
     public static void dict_import(@Param(name = "Queue name", description = "Wordlist queue name") String dictQueueName,
                                    @Param(name = "File location", description = "Points out the path of file includes text dictionary") String fileLoc) {
 
-        if (NodeInstanceFactory.instances.size() == 0) {
-
-            logger().warning("No node has started yet, cannot import dictionaries");
-
+        if (!Common.check_node_started("No node has started yet, cannot import dictionaries."))
             return;
-
-        }
 
 
         // Adding any instance would be enough to spread accross to all
         NodeInstance ni = NodeInstanceFactory.instances.elementAt(0);
 
         Queue<Wordlist> q = ni.hi.getQueue(dictQueueName+".wlqueue");
+
+
 
         Wordlist.load_from_file(fileLoc,q);
 
@@ -45,14 +42,6 @@ public class DictImporter {
     @Command(name = "dict-import", description = "Imports dictionary from the file specified to the cloud", abbrev = "di")
     public static void dict_import(
                                    @Param(name = "File location", description = "Points out the path of file includes text dictionary") String fileLoc) {
-
-        if (NodeInstanceFactory.instances.size() == 0) {
-
-            logger().warning("No node has started yet, cannot import dictionaries");
-
-            return;
-
-        }
 
 
         dict_import(Settings.get(Settings.OPT_WL_DEFAULT_NAME),fileLoc);

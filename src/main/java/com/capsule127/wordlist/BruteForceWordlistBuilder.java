@@ -13,7 +13,18 @@ public class BruteForceWordlistBuilder implements IDynamicWordlistBuilder {
         return Logger.getLogger("BruteForceWordlistBuilder");
     }
 
-    public static String iterate(char[] chars,long num) {
+    public static long getTotalNumOfWords(char[] chars,int startLen,int stopLen) {
+
+        long ret = 0;
+        for (int i=startLen;i<=stopLen;i++) {
+
+            ret += Math.pow(chars.length,i);
+        }
+
+        return ret;
+    }
+
+    public static String iterate(char[] chars,int startLen,long num) {
         int CCOUNT = chars.length;
 
 
@@ -27,7 +38,7 @@ public class BruteForceWordlistBuilder implements IDynamicWordlistBuilder {
          */
         int digits = 0;
         long digits_s_count = 0;
-        for (int i=0;;i++) {
+        for (int i=startLen-1;;i++) {
             //Main.defaultLogger.info("num: " + num + " digits_s_count: " + digits_s_count + " i: " + i + " Math.pow(CCOUNT,i+1): " + Math.pow(CCOUNT, i + 1));
             if (num >= digits_s_count && num < (Math.pow(CCOUNT,i+1))+digits_s_count) {
                 digits = i+1;
@@ -107,6 +118,10 @@ public class BruteForceWordlistBuilder implements IDynamicWordlistBuilder {
 
     }
 
+    public static String iterate(char[] chars,long num) {
+        return iterate(chars,1,num);
+    }
+
     @Override
     public Vector<String> getList(Object[] params) {
 
@@ -123,13 +138,13 @@ public class BruteForceWordlistBuilder implements IDynamicWordlistBuilder {
         try {
 
             String charlist = (String) params[0];
-            Long startFrom = (Long) params[1];
-            Long endAt = (Long) params[2];
+            Long startLen = (Long) params[1];
+            Long endLen = (Long) params[2];
 
 
             char[] chArr = charlist.toCharArray();
 
-            for (long st = startFrom;st<endAt;st++) {
+            for (long st = startLen;st<endLen;st++) {
 
                 ret.add(iterate(chArr,st));
 

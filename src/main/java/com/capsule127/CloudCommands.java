@@ -28,13 +28,11 @@ public class CloudCommands {
     public static void show_distributed_objects() {
 
 
-        if (NodeInstanceFactory.instances.size() == 0) {
 
-            logger().warning("No node has started yet");
 
+
+        if (!Common.check_node_started("No node has started yet"))
             return;
-
-        }
 
 
         // Adding any instance would be enough to spread accross to all
@@ -116,19 +114,9 @@ public class CloudCommands {
         NodeInstance ni = NodeInstanceFactory.instances.elementAt(0);
 
 
-        IHashTypeDescription _iht =null;
-
-        for (IHashTypeDescription iht : App.supportedHashTypes) {
-
-            if (iht.abbrev().equalsIgnoreCase(hashType)) {
-                _iht = iht;
-                break;
-            }
-        }
+        IHashTypeDescription _iht = Common.getHashTypebyAbbrev(hashType, true);
 
         if (_iht == null) {
-
-            logger().warning(hashType + " is not a valid hash type name.");
 
             return;
 

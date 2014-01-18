@@ -24,17 +24,22 @@ public class Settings {
     public static final String OPT_WG_PASS = "WORKGROUP_PASS";
     public static final String OPT_EM_SIZE = "ELASTIC_MEMORY_SIZE";
     public static final String OPT_USE_LOCAL_STORAGE = "USE_LOCAL_STORAGE";
-    public static final String OPT_WL_MAX_CH_SIZE = "WORDLIST_MAX_CHUNK_SIZE";
+    public static final String OPT_WL_MAX_WORD_SIZE_PER_CH = "WORDLIST_MAX_WORD_SIZE_PER_CHUNK";
+    public static final String OPT_WL_QUEUE_MAX_SIZE = "WORDLIST_QUEUE_MAX_SIZE";
     public static final String OPT_WL_DEFAULT_NAME = "WORDLIST_DEFAULT_NAME";
+    public static final String OPT_DEF_CHARSET = "DEFAULT_CHARSET";
+    public static final String OPT_CR_THREAD_COUNT = "CRACKER_THREAD_COUNT";
 
     private static final Vector<OptChangeListener> optChangeListeners = new Vector<OptChangeListener>();
 
 
     private static final String[] const_keys = new String[]{
-            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE, OPT_WL_MAX_CH_SIZE,OPT_WL_DEFAULT_NAME
+            OPT_WG, OPT_WG_PASS, OPT_EM_SIZE, OPT_USE_LOCAL_STORAGE, OPT_WL_MAX_WORD_SIZE_PER_CH,OPT_WL_DEFAULT_NAME,
+            OPT_DEF_CHARSET,OPT_WL_QUEUE_MAX_SIZE, OPT_CR_THREAD_COUNT
     };
     private static final String[] const_vals = new String[]{
-            "C127", "C127", "256", "false", "2560","C127"
+            "C127", "C127", "256", "false", "2560","C127",
+            "abcdefghijklmnopqrstvwxyz0123456789", "1000", "4"
     };
 
     private static void fill_empty_ones() {
@@ -53,7 +58,14 @@ public class Settings {
 
     static {
 
-        optChangeListeners.add(integerCheckListener(OPT_WL_MAX_CH_SIZE));
+        optChangeListeners.add(notEmptyCheckListener(OPT_DEF_CHARSET));
+
+
+        optChangeListeners.add(integerCheckListener(OPT_CR_THREAD_COUNT));
+
+        optChangeListeners.add(integerCheckListener(OPT_WL_QUEUE_MAX_SIZE));
+
+        optChangeListeners.add(integerCheckListener(OPT_WL_MAX_WORD_SIZE_PER_CH));
 
         optChangeListeners.add(new OptChangeListener() {
 
@@ -229,6 +241,37 @@ public class Settings {
                     return true;
 
                 } catch (NumberFormatException ex) {
+
+                    Logger.getAnonymousLogger().warning("Invalid value: " + value);
+
+                }
+
+                return false;        }
+        };
+    }
+
+    private static OptChangeListener notEmptyCheckListener(String key) {
+
+        final String _key = key;
+
+        return new OptChangeListener() {
+            @Override
+            public String key() {
+                return _key;
+            }
+
+            @Override
+            public boolean beforeChange(String value) {
+
+
+                try {
+                    if (value.trim().length() == 0)
+                        throw  new Exception();
+
+
+                    return true;
+
+                } catch (Exception ex) {
 
                     Logger.getAnonymousLogger().warning("Invalid value: " + value);
 

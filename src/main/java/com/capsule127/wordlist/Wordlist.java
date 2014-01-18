@@ -114,7 +114,7 @@ public class Wordlist {
 
             Vector<String> list = new Vector<String>();
 
-            int limit = Integer.parseInt(Settings.get(Settings.OPT_WL_MAX_CH_SIZE));
+            int limit = Integer.parseInt(Settings.get(Settings.OPT_WL_MAX_WORD_SIZE_PER_CH));
 
             int c = 0;
             String line = null;

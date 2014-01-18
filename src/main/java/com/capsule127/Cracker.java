@@ -11,6 +11,8 @@ import org.fusesource.jansi.AnsiConsole;
 import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -24,21 +26,28 @@ public class Cracker implements Runnable {
         return Logger.getLogger("Cracker");
     }
 
-    /// EOF STATIC METHODS
 
+    private BlockingQueue<Runnable> bq;// = new ArrayBlockingQueue<Runnable>(16);
+
+    private int threadSize;
 
     private Boolean isRunning = false;
 
     private Boolean stop = false;
+
+    private Boolean stopThreads = false;
 
     private Boolean suspended = false;
 
     private IHashTypeDescription hashTypeDescription;
     private String dictQueueName;
 
-    public Cracker(IHashTypeDescription hashTypeDescription, String dictQueueName) {
+    public Cracker(IHashTypeDescription hashTypeDescription, String dictQueueName, int threadSize) {
         this.hashTypeDescription = hashTypeDescription;
         this.dictQueueName = dictQueueName;
+        this.threadSize = threadSize;
+
+        bq = new ArrayBlockingQueue<Runnable>(threadSize*2);
     }
 
     public void stop() {
@@ -71,18 +80,20 @@ public class Cracker implements Runnable {
         String format = "Running on %s p/s, hash count = %s, wordlist chunks = %s, tried pass count= %sK, curr pass = %s \n" +
                 "Network power %s p/s";
 
-        long diff = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - stTime) ;
+        long diff = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - stTime);
 
-        if ( diff == 0)
-            diff =1;
+        if (diff == 0)
+            diff = 1;
 
-        long networkCount = (networkTryCount-lastNetworkTryCount);
+
+        long networkCount = (networkTryCount - lastNetworkTryCount);
 
         long networkPower = networkCount == 0 ? 0 :
-                TimeUnit.NANOSECONDS.toSeconds(networkTryCountRetrieveTime-lastNetworkTryCountRetrieveTime)/networkCount;
+                networkCount / (TimeUnit.NANOSECONDS.toSeconds(networkTryCountRetrieveTime)
+                        - TimeUnit.NANOSECONDS.toSeconds(lastNetworkTryCountRetrieveTime));
 
-        String mess = String.format(format, (double) ( tryCount  / diff), hashCount, wlSize, tryCount/1000, lastTriedPass,
-                networkPower);
+        String mess = String.format(format, (double) (tryCount / diff), hashCount, wlSize, tryCount / 1000, lastTriedPass,
+                networkPower == 0 ? "[Unknown]" : "" + networkPower);
 
         AnsiConsole.out.println(Util.Colorize(Ansi.Color.YELLOW, "CRACKER: ") + mess);
     }
@@ -91,26 +102,29 @@ public class Cracker implements Runnable {
     public void run() {
 
         isRunning = true;
+        stopThreads = false;
 
         long timeBeforeLastStatus = 0;
         try {
 
+            for (int i = 0; i < threadSize; i++) {
+                new Thread(new WorkerThread()).start();
+            }
 
             // Adding any instance would be enough to spread accross to all
             NodeInstance ni = NodeInstanceFactory.instances.elementAt(0);
 
-            HashesMap hm = ni.getHashesMapFor(hashTypeDescription);
+            final HashesMap hm = ni.getHashesMapFor(hashTypeDescription);
 
             Queue<Wordlist> queue = ni.hi.getQueue(dictQueueName + ".wlqueue");
 
-            List<IHash> hashes = hm.getHashes();
+            final List<IHash>[] hashes = new List[]{hm.getHashes()};
 
-            hashCount = hashes.size();
-
+            hashCount = hashes[0].size();
 
             stTime = System.nanoTime();
 
-            while (!stop && hashes.size() > 0) {
+            while (!stop && hashes[0].size() > 0) {
 
                 Wordlist wl = queue.poll();
 
@@ -131,41 +145,56 @@ public class Cracker implements Runnable {
 
                     for (String pass : passws) {
 
-                        Boolean found = false;
+                        final String pass_to_go = pass;
 
-                        String generated = null;
+                        bq.put(new Runnable() {
+                            @Override
+                            public void run() {
+                                Boolean found = false;
 
-                        for (IHash hash : hashes) {
+                                String generated = null;
 
-                            tryCount++;
+                                for (IHash hash : hashes[0]) {
 
-                            IHashGenerator ihg = hash.hash_type().generators()[0];
+                                    tryCount++;
 
-                            if (hash.hash_type().requiresUserOrSaltPerGeneration() || generated == null)
-                                generated = ihg.generate(hash.user(), pass, hash.salt());
+                                    IHashGenerator ihg = hash.hash_type().generators()[0];
+
+                                    if (hash.hash_type().requiresUserOrSaltPerGeneration() || generated == null)
+                                        try {
+                                            generated = ihg.generate(hash.user(), pass_to_go, hash.salt());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
 
 
-                            lastTriedPass = pass;
+                                    lastTriedPass = pass_to_go;
 
-                            if (generated.equals(hash.hash())) {
+                                    if (generated.equals(hash.hash())) {
 
-                                hm.markHashAsFound(hash, pass);
+                                        hm.markHashAsFound(hash, pass_to_go);
 
-                                found = true;
+                                        found = true;
 
+                                    }
+
+                                }
+
+                                if (found) {
+                                    hashes[0] = hm.getHashes();
+                                    hashCount = hashes[0].size();
+                                }
                             }
+                        });
 
-                        }
+                         
 
-                        if (found) {
-                            hashes = hm.getHashes();
-                            hashCount = hashes.size();
-                        }
 
                     }
 
+
                     lastNetworkTryCount = networkTryCount;
-                    networkTryCount = ni.hi.getAtomicLong("tryCount").addAndGet(tryCount-lastNotifiedTryCount);
+                    networkTryCount = ni.hi.getAtomicLong("tryCount").addAndGet(tryCount - lastNotifiedTryCount);
                     lastNetworkTryCountRetrieveTime = networkTryCountRetrieveTime;
                     networkTryCountRetrieveTime = System.nanoTime();
                     lastNotifiedTryCount = tryCount;
@@ -199,7 +228,7 @@ public class Cracker implements Runnable {
 
             }
 
-            if (hashes.size() == 0) {
+            if (hashes[0].size() == 0) {
                 Cracker.logger().info("No hash left on " + hashTypeDescription.name() + " hashes list");
             }
 
@@ -211,6 +240,22 @@ public class Cracker implements Runnable {
 
         }
 
+        while (bq.size() > 0) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        stopThreads = true;
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         AnsiConsole.out().println("Cracker stopped.");
 
         stop = true;
@@ -219,5 +264,27 @@ public class Cracker implements Runnable {
         App._cracker = null;
 
 
+    }
+
+    private class WorkerThread implements Runnable {
+
+        @Override
+        public void run() {
+
+
+            while (!stopThreads) {
+                try {
+                    bq.take().run();
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+
+        }
     }
 }

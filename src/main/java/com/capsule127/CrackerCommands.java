@@ -17,13 +17,10 @@ public class CrackerCommands {
     public static void launch_cracker(@Param(name = "type", description = "Hash type")String hashType,
                                       @Param(name = "wordlist", description = "Wordlist queue name")String wordlist) {
 
-        if (NodeInstanceFactory.instances.size() == 0) {
 
-            Logger.getLogger("Cracker").warning("No node has started yet, cannot start cracker.");
-
+        if (!Common.check_node_started("No node has started yet, cannot start cracker."))
             return;
 
-        }
 
 
         IHashTypeDescription _iht =null;
@@ -53,7 +50,7 @@ public class CrackerCommands {
         }
 
 
-        App._cracker = new Cracker(_iht,wordlist);
+        App._cracker = new Cracker(_iht,wordlist, Integer.parseInt(Settings.get(Settings.OPT_CR_THREAD_COUNT)));
 
        // new Thread(App._cracker).start();
 
