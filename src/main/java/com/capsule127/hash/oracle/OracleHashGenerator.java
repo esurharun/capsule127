@@ -60,6 +60,7 @@ public class OracleHashGenerator implements IHashGenerator {
 
     private Cipher des_cipher = null;
 
+
     @Override
     public  String generate(byte[] input, byte[] salt) throws Exception {
 

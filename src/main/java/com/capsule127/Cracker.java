@@ -27,7 +27,7 @@ public class Cracker implements Runnable {
     }
 
 
-    private BlockingQueue<Runnable> bq;// = new ArrayBlockingQueue<Runnable>(16);
+    private BlockingQueue<Generator> bq;// = new ArrayBlockingQueue<Runnable>(16);
 
     private int threadSize;
 
@@ -47,7 +47,7 @@ public class Cracker implements Runnable {
         this.dictQueueName = dictQueueName;
         this.threadSize = threadSize;
 
-        bq = new ArrayBlockingQueue<Runnable>(threadSize*2);
+        bq = new ArrayBlockingQueue<Generator>(threadSize*2);
     }
 
     public void stop() {
@@ -147,9 +147,10 @@ public class Cracker implements Runnable {
 
                         final String pass_to_go = pass;
 
-                        bq.put(new Runnable() {
+
+                        bq.put(new Generator() {
                             @Override
-                            public void run() {
+                            public IHashGenerator generateAndCheck(IHashGenerator original) {
                                 Boolean found = false;
 
                                 String generated = null;
@@ -158,7 +159,10 @@ public class Cracker implements Runnable {
 
                                     tryCount++;
 
-                                    IHashGenerator ihg = hash.hash_type().generators()[0];
+                                    IHashGenerator ihg = (original == null ? hash.hash_type().generators()[0] : original);
+
+
+                                    original = ihg;
 
                                     if (hash.hash_type().requiresUserOrSaltPerGeneration() || generated == null)
                                         try {
@@ -184,8 +188,12 @@ public class Cracker implements Runnable {
                                     hashes[0] = hm.getHashes();
                                     hashCount = hashes[0].size();
                                 }
+
+                                return original;
                             }
                         });
+
+
 
                          
 
@@ -266,7 +274,15 @@ public class Cracker implements Runnable {
 
     }
 
+    private interface Generator {
+
+        public IHashGenerator generateAndCheck(IHashGenerator original);
+
+    }
     private class WorkerThread implements Runnable {
+
+
+        private IHashGenerator ihg = null;
 
         @Override
         public void run() {
@@ -274,7 +290,10 @@ public class Cracker implements Runnable {
 
             while (!stopThreads) {
                 try {
-                    bq.take().run();
+                    Generator g =  bq.take();
+
+                    ihg = g.generateAndCheck(ihg);
+
                 } catch (InterruptedException e) {
                     try {
                         Thread.sleep(5);
